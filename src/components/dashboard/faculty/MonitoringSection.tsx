@@ -225,7 +225,7 @@ const MonitoringSection: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartTooltip />
                   <Bar dataKey="solved" fill="#7C3AED" radius={[6,6,0,0]} />
                 </RBarChart>
               </ResponsiveContainer>
@@ -244,7 +244,7 @@ const MonitoringSection: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
                   <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartTooltip />
                   <Line type="monotone" dataKey="hours" stroke="#10B981" strokeWidth={2} dot={false} />
                 </RLineChart>
               </ResponsiveContainer>
@@ -265,7 +265,7 @@ const MonitoringSection: React.FC = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartTooltip />
                 </RPieChart>
               </ResponsiveContainer>
             </div>
