@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -32,16 +32,43 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
     full_name: profile?.full_name || '',
     email: profile?.email || '',
   });
+  const [extras, setExtras] = useState({ avatarUrl: '', linkedin: '', github: '', twitter: '', website: '' });
+  const [pendingExtras, setPendingExtras] = useState({ avatarUrl: '', linkedin: '', github: '', twitter: '', website: '' });
 
   const totalCertificates = certificates.length;
   const approvedCertificates = certificates.filter(cert => cert.status === 'approved').length;
   const pendingCertificates = certificates.filter(cert => cert.status === 'pending').length;
   const progressPercentage = totalCertificates > 0 ? Math.round((approvedCertificates / totalCertificates) * 100) : 0;
 
+  useEffect(() => {
+    if (!profile) return;
+    try {
+      const saved = localStorage.getItem(`profileExtras:${profile.id}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setExtras({
+          avatarUrl: parsed.avatarUrl || '',
+          linkedin: parsed.linkedin || '',
+          github: parsed.github || '',
+          twitter: parsed.twitter || '',
+          website: parsed.website || ''
+        });
+      } else {
+        setExtras({ avatarUrl: '', linkedin: '', github: '', twitter: '', website: '' });
+      }
+    } catch {}
+  }, [profile?.id]);
+
+  useEffect(() => {
+    if (isEditing) {
+      setPendingExtras(extras);
+    }
+  }, [isEditing, extras]);
+
   const handleSaveProfile = async () => {
     if (!profile) return;
-    
-    const { error } = await updateProfile(editForm);
+
+    const { error } = await updateProfile({ full_name: editForm.full_name, email: editForm.email });
     if (error) {
       toast({
         title: 'Error',
@@ -49,6 +76,10 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
         variant: 'destructive',
       });
     } else {
+      try {
+        localStorage.setItem(`profileExtras:${profile.id}`, JSON.stringify(pendingExtras));
+        setExtras(pendingExtras);
+      } catch {}
       toast({
         title: 'Success',
         description: 'Profile updated successfully',
@@ -93,6 +124,37 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
                     value={editForm.email}
                     onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Profile Photo</Label>
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src={pendingExtras.avatarUrl} alt={editForm.full_name} />
+                      <AvatarFallback>
+                        {profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => setPendingExtras({ ...pendingExtras, avatarUrl: String(reader.result) });
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Social Links</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Input placeholder="LinkedIn URL" value={pendingExtras.linkedin} onChange={(e)=>setPendingExtras({ ...pendingExtras, linkedin: e.target.value })} />
+                    <Input placeholder="GitHub URL" value={pendingExtras.github} onChange={(e)=>setPendingExtras({ ...pendingExtras, github: e.target.value })} />
+                    <Input placeholder="Twitter URL" value={pendingExtras.twitter} onChange={(e)=>setPendingExtras({ ...pendingExtras, twitter: e.target.value })} />
+                    <Input placeholder="Website URL" value={pendingExtras.website} onChange={(e)=>setPendingExtras({ ...pendingExtras, website: e.target.value })} />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Student ID</Label>
@@ -167,8 +229,10 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
               <Button size="sm" onClick={() => {
                 const normalize = (u:string) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u);
                 const links = [
-                  ...(linkedinUrl ? [{ label: 'LinkedIn', url: normalize(linkedinUrl) }] : []),
-                  ...(githubUrl ? [{ label: 'GitHub', url: normalize(githubUrl) }] : []),
+                  ...(extras.linkedin ? [{ label: 'LinkedIn', url: normalize(extras.linkedin) }] : []),
+                  ...(extras.github ? [{ label: 'GitHub', url: normalize(extras.github) }] : []),
+                  ...(extras.twitter ? [{ label: 'Twitter', url: normalize(extras.twitter) }] : []),
+                  ...(extras.website ? [{ label: 'Website', url: normalize(extras.website) }] : []),
                   ...customLinks.map(l => ({ label: l.label, url: normalize(l.url) })),
                 ];
                 const doc = window.open('', '_blank');
@@ -205,7 +269,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-24 w-24">
-                <AvatarImage src="" alt={profile.full_name} />
+                <AvatarImage src={extras.avatarUrl} alt={profile.full_name} />
                 <AvatarFallback className="text-xl">
                   {profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                 </AvatarFallback>
@@ -227,14 +291,14 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
                   <Label htmlFor="linkedin">LinkedIn</Label>
                   <div className="flex gap-2">
                     <div className="inline-flex items-center px-2 border rounded-md text-sm text-muted-foreground"><Linkedin className="h-4 w-4 mr-1" />/</div>
-                    <Input id="linkedin" placeholder="linkedin.com/in/username" value={linkedinUrl} disabled readOnly />
+                    <Input id="linkedin" placeholder="linkedin.com/in/username" value={extras.linkedin} disabled readOnly />
                   </div>
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="github">GitHub</Label>
                   <div className="flex gap-2">
                     <div className="inline-flex items-center px-2 border rounded-md text-sm text-muted-foreground"><Github className="h-4 w-4 mr-1" />/</div>
-                    <Input id="github" placeholder="github.com/username" value={githubUrl} disabled readOnly />
+                    <Input id="github" placeholder="github.com/username" value={extras.github} disabled readOnly />
                   </div>
                 </div>
               </div>
