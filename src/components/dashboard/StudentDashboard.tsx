@@ -99,6 +99,22 @@ const StudentDashboard = () => {
   const pct = (n: number) => Math.round((n / (total || 1)) * 100);
   const weekPct = (n: number) => Math.round((n / weekTotal) * 100);
 
+  const CountUp: React.FC<{ to: number; duration?: number }> = ({ to, duration = 800 }) => {
+    const [val, setVal] = React.useState(0);
+    React.useEffect(() => {
+      let raf = 0;
+      const start = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - start) / duration);
+        setVal(Math.round(to * p));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
+    }, [to, duration]);
+    return <span>{val}</span>;
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
