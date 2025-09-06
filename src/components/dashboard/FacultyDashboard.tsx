@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle, XCircle, Clock, Users, FileText, MessageSquare } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import MonitoringSection from './faculty/MonitoringSection';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
@@ -394,10 +395,11 @@ const FacultyDashboard = () => {
 
       {/* Main Content */}
       <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="pending">Pending Reviews ({pendingCertificates.length})</TabsTrigger>
           <TabsTrigger value="processed">Processed</TabsTrigger>
           <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
         </TabsList>
         
         <TabsContent value="pending" className="space-y-4">
@@ -587,6 +589,9 @@ const FacultyDashboard = () => {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="monitoring">
+          <MonitoringSection />
         </TabsContent>
       </Tabs>
     </div>
