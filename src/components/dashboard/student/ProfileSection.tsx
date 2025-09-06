@@ -227,14 +227,14 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
                   <Label htmlFor="linkedin">LinkedIn</Label>
                   <div className="flex gap-2">
                     <div className="inline-flex items-center px-2 border rounded-md text-sm text-muted-foreground"><Linkedin className="h-4 w-4 mr-1" />/</div>
-                    <Input id="linkedin" placeholder="linkedin.com/in/username" value={linkedinUrl} onChange={(e)=>setLinkedinUrl(e.target.value)} />
+                    <Input id="linkedin" placeholder="linkedin.com/in/username" value={linkedinUrl} disabled readOnly />
                   </div>
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="github">GitHub</Label>
                   <div className="flex gap-2">
                     <div className="inline-flex items-center px-2 border rounded-md text-sm text-muted-foreground"><Github className="h-4 w-4 mr-1" />/</div>
-                    <Input id="github" placeholder="github.com/username" value={githubUrl} onChange={(e)=>setGithubUrl(e.target.value)} />
+                    <Input id="github" placeholder="github.com/username" value={githubUrl} disabled readOnly />
                   </div>
                 </div>
               </div>
@@ -242,14 +242,9 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
               <div className="space-y-2">
                 <Label>Custom Links</Label>
                 <div className="flex gap-2">
-                  <Input placeholder="Label (e.g., Portfolio)" value={newCustomLabel} onChange={(e)=>setNewCustomLabel(e.target.value)} />
-                  <Input placeholder="https://example.com" value={newCustomUrl} onChange={(e)=>setNewCustomUrl(e.target.value)} />
-                  <Button type="button" onClick={()=>{
-                    if (!newCustomLabel.trim() || !newCustomUrl.trim()) return;
-                    setCustomLinks([...customLinks, { label: newCustomLabel.trim(), url: newCustomUrl.trim() }]);
-                    setNewCustomLabel('');
-                    setNewCustomUrl('');
-                  }}>Add</Button>
+                  <Input placeholder="Label (e.g., Portfolio)" value={newCustomLabel} disabled readOnly />
+                  <Input placeholder="https://example.com" value={newCustomUrl} disabled readOnly />
+                  <Button type="button" disabled>Add</Button>
                 </div>
                 {customLinks.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-1">
