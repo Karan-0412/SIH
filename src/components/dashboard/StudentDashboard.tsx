@@ -192,21 +192,20 @@ const StudentDashboard = () => {
             <div className="mt-4">
               <div className="text-3xl font-bold text-gray-900 leading-none"><CountUp to={weekTotal} /> <span className="text-base font-medium text-gray-500">activities</span></div>
             </div>
-            <div className="relative mt-4 h-32">
-              <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ bottom: `${(last7.reduce((s,x)=>s+x.count,0)/(last7.length||1))/(Math.max(...last7.map(x=>x.count))||1)*100}%` }} />
-              <div className="absolute inset-0 flex items-end gap-3 px-1">
-                {last7.map((d) => {
-                  const max = Math.max(...last7.map(x=>x.count)) || 1;
-                  const h = (d.count / max) * 100;
-                  const isMax = d.count === max;
-                  return (
-                    <div key={d.day} className="flex-1 flex flex-col items-center">
-                      <div className={`${isMax ? 'bg-[#6D28D9]' : 'bg-[#E9D5FF]'} w-6 rounded-t transition-all duration-700`} style={{ height: `${h}%` }} />
-                      <span className="mt-2 text-xs text-gray-500">{d.day}</span>
+            <div className="mt-4 space-y-3">
+              {last7.map((d) => {
+                const max = Math.max(...last7.map(x=>x.count)) || 1;
+                const w = (d.count / max) * 100;
+                return (
+                  <div key={d.day} className="flex items-center gap-3">
+                    <span className="w-10 text-xs text-gray-500">{d.day}</span>
+                    <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-[#6D28D9] rounded-full transition-all duration-700" style={{ width: `${w}%` }} />
                     </div>
-                  );
-                })}
-              </div>
+                    <span className="w-6 text-xs text-gray-600 text-right">{d.count}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
