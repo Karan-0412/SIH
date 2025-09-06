@@ -99,6 +99,8 @@ const StudentDashboard = () => {
   const weekTotal = last7.reduce((s, x) => s + x.count, 0) || 1;
   const pct = (n: number) => Math.round((n / (total || 1)) * 100);
   const weekPct = (n: number) => Math.round((n / weekTotal) * 100);
+  const maxCount = Math.max(...last7.map(x=>x.count)) || 1;
+  const avgCount = weekTotal / (last7.length || 1);
 
   const CountUp: React.FC<{ to: number; duration?: number }> = ({ to, duration = 800 }) => {
     const [val, setVal] = React.useState(0);
@@ -141,28 +143,34 @@ const StudentDashboard = () => {
               <h3 className="font-semibold text-gray-900">Activity</h3>
               <span className="text-xs px-3 py-1 rounded-full border bg-gray-50 text-gray-700">Last 7 days</span>
             </div>
-            <div className="mt-5 h-40 flex items-end gap-3">
-              {last7.map((d) => {
-                const max = Math.max(...last7.map(x=>x.count)) || 1;
-                const h = (d.count / max) * 100;
-                const isMax = d.count === max && max > 0;
-                return (
-                  <div key={d.day} className="flex-1 flex flex-col items-center">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className={`w-6 rounded-t transition-all duration-700 hover:shadow-md ${isMax ? 'bg-[#7C3AED]' : 'bg-[#E9D5FF] hover:bg-[#C4B5FD]'}`} style={{ height: `${h}%` }} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <div className="text-xs">
-                          <div className="font-medium">{d.day}</div>
-                          <div className="text-gray-600">{d.count} activities</div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                    <span className="mt-2 text-xs text-gray-500">{d.day}</span>
-                  </div>
-                );
-              })}
+            <div className="mt-3">
+              <div className="text-3xl font-bold text-gray-900 leading-none"><CountUp to={weekTotal} /> <span className="text-base font-medium text-gray-500">activities</span></div>
+            </div>
+            <div className="relative mt-4 h-40">
+              <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ bottom: `${(avgCount / maxCount) * 100}%` }} />
+              <div className="absolute left-0 -translate-y-1/2 px-2 py-0.5 rounded-full bg-black text-white text-[10px]" style={{ bottom: `${(avgCount / maxCount) * 100}%` }}>{avgCount.toFixed(1)}</div>
+              <div className="absolute inset-0 flex items-end gap-3">
+                {last7.map((d) => {
+                  const h = (d.count / maxCount) * 100;
+                  const isMax = d.count === maxCount && maxCount > 0;
+                  return (
+                    <div key={d.day} className="flex-1 flex flex-col items-center">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className={`w-6 rounded-t transition-all duration-700 hover:shadow-md ${isMax ? 'bg-[#7C3AED]' : 'bg-[#E9D5FF] hover:bg-[#C4B5FD]'}`} style={{ height: `${h}%` }} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="text-xs">
+                            <div className="font-medium">{d.day}</div>
+                            <div className="text-gray-600">{d.count} activities</div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span className="mt-2 text-xs text-gray-500">{d.day}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
