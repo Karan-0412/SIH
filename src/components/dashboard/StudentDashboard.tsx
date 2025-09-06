@@ -201,7 +201,7 @@ const StudentDashboard = () => {
                 </div>
                 <div>
                   <div className="flex w-full h-2 rounded-full overflow-hidden bg-gray-200">
-                    <div className="h-full bg-[#6D28D9]" style={{ width: `${pct(approved)}%`, transition: 'width 800ms ease' }} />
+                    <div className="h-full bg-[#7C3AED]" style={{ width: `${pct(approved)}%`, transition: 'width 800ms ease' }} />
                     <div className="h-full bg-[#10B981]" style={{ width: `${pct(pending)}%`, transition: 'width 800ms ease 120ms' }} />
                     <div className="h-full bg-[#F59E0B]" style={{ width: `${pct(rejected)}%`, transition: 'width 800ms ease 240ms' }} />
                   </div>
@@ -236,7 +236,7 @@ const StudentDashboard = () => {
               </div>
             </div>
             <div className="grid md:grid-cols-3 gap-4">
-              {[{time:'10:30 — 12:00',title:'Technical English for Beginners',tag:'Beginner',accent:'bg-gray-100',mentor:'Kristin Watson'},{time:'13:00 — 14:00',title:'English punctuation made easy',tag:'Advanced',accent:'bg-[#7C3AED] text-white',mentor:'Cody Fisher',now:true},{time:'16:00 — 17:00',title:'Technical Spanish for Beginners',tag:'Beginner',accent:'bg-gray-100',mentor:'Jacob Jones'}].map((c,i)=> (
+              {[{time:'10:30 — 12:00',title:'Technical English for Beginners',tag:'Beginner',accent:'bg-gray-100',mentor:'Kristin Watson'},{time:'13:00 ��� 14:00',title:'English punctuation made easy',tag:'Advanced',accent:'bg-[#7C3AED] text-white',mentor:'Cody Fisher',now:true},{time:'16:00 — 17:00',title:'Technical Spanish for Beginners',tag:'Beginner',accent:'bg-gray-100',mentor:'Jacob Jones'}].map((c,i)=> (
                 <div key={i} className={`rounded-2xl p-4 shadow-sm ${c.accent.includes('#7C3AED')? 'bg-[#7C3AED] text-white' : 'bg-white'} border`}>
                   <div className={`text-xs ${c.accent.includes('#7C3AED')? 'text-white/80' : 'text-gray-500'}`}>{c.time}</div>
                   <div className="mt-1 font-semibold leading-snug">{c.title}</div>
