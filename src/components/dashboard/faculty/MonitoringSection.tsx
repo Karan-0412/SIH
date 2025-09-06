@@ -125,6 +125,66 @@ const MonitoringSection: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const downloadTemplate = () => {
+    const headers = ['platform','studentId','gender','section','class'];
+    const sample = 'leetcode,student123,male,A,10';
+    const csv = headers.join(',') + '\n' + sample + '\n';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ids-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const parseCSV = (text: string): Row[] => {
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    if (!lines.length) return [];
+    const headers = lines[0].split(',').map(h=>h.trim().toLowerCase());
+    const idx = (name: string) => headers.indexOf(name);
+    const pI = idx('platform');
+    const sI = idx('studentid');
+    const gI = idx('gender');
+    const secI = idx('section');
+    const cI = idx('class');
+    const out: Row[] = [];
+    for (let i=1;i<lines.length;i++){
+      const cols = lines[i].split(',');
+      const platform = (cols[pI] || 'leetcode').trim();
+      const studentId = (cols[sI] || '').trim();
+      if (!studentId) continue;
+      const gender = ((cols[gI] || 'other').trim().toLowerCase() as 'male'|'female'|'other');
+      const section = (cols[secI] || '').trim();
+      const klass = (cols[cI] || '').trim();
+      out.push({ platform, studentId, gender, section, klass });
+    }
+    return out;
+  };
+
+  const mergeUniqueRows = (a: Row[], b: Row[]) => {
+    const map = new Map<string, Row>();
+    for (const r of [...a, ...b]){
+      const key = `${r.platform}|${r.studentId}`;
+      if (!map.has(key)) map.set(key, r);
+    }
+    return Array.from(map.values());
+  };
+
+  const importCSVFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result || '');
+      const parsed = parseCSV(text);
+      if (parsed.length){
+        setRows((prev)=> mergeUniqueRows(prev, parsed));
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const exportPDF = () => {
     const w = window.open('', '_blank');
     if (!w) return;
@@ -171,6 +231,9 @@ const MonitoringSection: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center gap-3 mb-4">
+            <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e)=>{ const f=e.target.files?.[0]; if (f) importCSVFile(f); (e.target as HTMLInputElement).value=''; }} />
+            <Button variant="outline" size="sm" onClick={()=>fileInputRef.current?.click()}>Import IDs (CSV)</Button>
+            <Button variant="outline" size="sm" onClick={downloadTemplate}>Template</Button>
             <Select value={filterPlatform} onValueChange={(v: string) => setFilterPlatform(v)}>
               <SelectTrigger className="w-40"><SelectValue placeholder="Platform" /></SelectTrigger>
               <SelectContent>
