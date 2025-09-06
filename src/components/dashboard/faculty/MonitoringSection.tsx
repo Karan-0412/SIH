@@ -34,13 +34,21 @@ const PLATFORM_OPTIONS = [
 interface Row {
   platform: string;
   studentId: string;
+  gender: 'male' | 'female' | 'other';
+  section?: string;
+  klass?: string;
 }
 
 const MonitoringSection: React.FC = () => {
   const [selected, setSelected] = useState<string[]>(['leetcode']);
-  const [rows, setRows] = useState<Row[]>([{ platform: 'leetcode', studentId: '' }]);
+  const [rows, setRows] = useState<Row[]>([{ platform: 'leetcode', studentId: '', gender: 'male', section: '', klass: '' }]);
   const [filterPlatform, setFilterPlatform] = useState<string>('all');
   const [filterStudent, setFilterStudent] = useState<string>('all');
+  const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female' | 'other'>('all');
+  const [sectionFilter, setSectionFilter] = useState<string>('');
+  const [classFilter, setClassFilter] = useState<string>('');
+  const [topFilter, setTopFilter] = useState<'top10' | 'top25' | 'top50' | 'custom'>('top10');
+  const [topCustom, setTopCustom] = useState<number>(10);
   const [range, setRange] = useState<'7d' | '30d' | '90d'>('7d');
 
   const handleTogglePlatform = (key: string, checked: boolean) => {
@@ -48,7 +56,7 @@ const MonitoringSection: React.FC = () => {
     setRows((prev) => prev.map((r) => (r.platform === key ? r : r)));
   };
 
-  const addRow = () => setRows((r) => [...r, { platform: selected[0] || 'leetcode', studentId: '' }]);
+  const addRow = () => setRows((r) => [...r, { platform: selected[0] || 'leetcode', studentId: '', gender: 'male', section: '', klass: '' }]);
 
   const submitIds = () => {
     const payload = rows.filter((r) => r.studentId.trim()).filter((r) => selected.includes(r.platform));
@@ -62,17 +70,31 @@ const MonitoringSection: React.FC = () => {
   // Mock metrics derived from inputs so UI is interactive
   const metrics = useMemo(() => {
     const platforms = filterPlatform === 'all' ? selected : [filterPlatform];
-    const items = platforms.flatMap((p, i) =>
-      (filterStudent === 'all' ? studentsList : studentsList.filter((s) => s === filterStudent)).map((s, j) => ({
-        platform: p,
-        student: s || `student-${i + j + 1}`,
-        solved: (i + 1) * 5 + j * 3,
-        hours: (i + 1) * 2 + j,
-        courses: (i + j) % 3,
-      }))
-    );
-    return items.length ? items : [{ platform: 'leetcode', student: 'demo', solved: 12, hours: 6, courses: 1 }];
-  }, [selected, filterPlatform, filterStudent, studentsList]);
+    const base = rows
+      .filter((r) => r.studentId.trim())
+      .filter((r) => platforms.includes(r.platform))
+      .filter((r) => (genderFilter === 'all' ? true : r.gender === genderFilter))
+      .filter((r) => (sectionFilter ? (r.section || '').toLowerCase().includes(sectionFilter.toLowerCase()) : true))
+      .filter((r) => (classFilter ? (r.klass || '').toLowerCase().includes(classFilter.toLowerCase()) : true))
+      .filter((r) => (filterStudent === 'all' ? true : r.studentId === filterStudent));
+
+    const items = base.map((r, idx) => ({
+      platform: r.platform,
+      student: r.studentId,
+      gender: r.gender,
+      section: r.section || '',
+      klass: r.klass || '',
+      solved: (idx + 1) * 7 % 53 + 5, // deterministic mock
+      hours: (idx % 5) + 2,
+      courses: (idx % 3),
+    }));
+
+    const sorted = items.sort((a, b) => b.solved - a.solved);
+    const topN = topFilter === 'top10' ? 10 : topFilter === 'top25' ? 25 : topFilter === 'top50' ? 50 : Math.max(1, topCustom);
+    const sliced = sorted.slice(0, topN);
+
+    return sliced.length ? sliced : [{ platform: 'leetcode', student: 'demo', gender: 'male', section: '', klass: '', solved: 12, hours: 6, courses: 1 }];
+  }, [rows, selected, filterPlatform, filterStudent, genderFilter, sectionFilter, classFilter, topFilter, topCustom]);
 
   const totals = useMemo(() => ({
     students: new Set(metrics.map((m) => m.student)).size,
@@ -150,7 +172,7 @@ const MonitoringSection: React.FC = () => {
         <CardContent>
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <Select value={filterPlatform} onValueChange={(v: string) => setFilterPlatform(v)}>
-              <SelectTrigger className="w-44"><SelectValue placeholder="Platform" /></SelectTrigger>
+              <SelectTrigger className="w-40"><SelectValue placeholder="Platform" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Platforms</SelectItem>
                 {selected.map((p) => (
@@ -158,8 +180,9 @@ const MonitoringSection: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
+
             <Select value={filterStudent} onValueChange={(v: string) => setFilterStudent(v)}>
-              <SelectTrigger className="w-44"><SelectValue placeholder="Student" /></SelectTrigger>
+              <SelectTrigger className="w-40"><SelectValue placeholder="Student" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Students</SelectItem>
                 {studentsList.map((s) => (
@@ -167,6 +190,33 @@ const MonitoringSection: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
+
+            <Select value={genderFilter} onValueChange={(v: 'all'|'male'|'female'|'other') => setGenderFilter(v)}>
+              <SelectTrigger className="w-36"><SelectValue placeholder="Gender" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="male">Boy</SelectItem>
+                <SelectItem value="female">Girl</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Input className="w-36" placeholder="Section" value={sectionFilter} onChange={(e)=>setSectionFilter(e.target.value)} />
+            <Input className="w-36" placeholder="Class" value={classFilter} onChange={(e)=>setClassFilter(e.target.value)} />
+
+            <Select value={topFilter} onValueChange={(v: 'top10'|'top25'|'top50'|'custom') => setTopFilter(v)}>
+              <SelectTrigger className="w-40"><SelectValue placeholder="Top" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="top10">Top 10</SelectItem>
+                <SelectItem value="top25">Top 25</SelectItem>
+                <SelectItem value="top50">Top 50</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+            {topFilter === 'custom' && (
+              <Input className="w-24" type="number" min={1} value={topCustom} onChange={(e)=>setTopCustom(Number(e.target.value) || 1)} />
+            )}
+
             <Select value={range} onValueChange={(v: '7d' | '30d' | '90d') => setRange(v)}>
               <SelectTrigger className="w-36"><SelectValue placeholder="Range" /></SelectTrigger>
               <SelectContent>
@@ -175,6 +225,7 @@ const MonitoringSection: React.FC = () => {
                 <SelectItem value="90d">Last 90 days</SelectItem>
               </SelectContent>
             </Select>
+
             <div className="ml-auto flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={exportCSV}><Download className="h-4 w-4 mr-2" />CSV</Button>
               <Button variant="outline" size="sm" onClick={exportPDF}><Download className="h-4 w-4 mr-2" />PDF</Button>
@@ -183,7 +234,7 @@ const MonitoringSection: React.FC = () => {
 
           <div className="grid grid-cols-1 gap-3">
             {rows.map((row, idx) => (
-              <div key={idx} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div key={idx} className="grid grid-cols-1 md:grid-cols-6 gap-3 items-center">
                 <Select value={row.platform} onValueChange={(v) => setRows((r) => r.map((x, i) => i === idx ? { ...x, platform: v } : x))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -193,6 +244,16 @@ const MonitoringSection: React.FC = () => {
                   </SelectContent>
                 </Select>
                 <Input placeholder="Student ID / Handle" value={row.studentId} onChange={(e) => setRows((r) => r.map((x, i) => i === idx ? { ...x, studentId: e.target.value } : x))} />
+                <Select value={row.gender} onValueChange={(v: 'male'|'female'|'other') => setRows((r)=> r.map((x,i)=> i===idx ? { ...x, gender: v } : x))}>
+                  <SelectTrigger><SelectValue placeholder="Gender" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Boy</SelectItem>
+                    <SelectItem value="female">Girl</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input placeholder="Section" value={row.section} onChange={(e)=> setRows((r)=> r.map((x,i)=> i===idx ? { ...x, section: e.target.value } : x))} />
+                <Input placeholder="Class" value={row.klass} onChange={(e)=> setRows((r)=> r.map((x,i)=> i===idx ? { ...x, klass: e.target.value } : x))} />
                 <div className="flex gap-2">
                   <Button variant="outline" className="w-full" onClick={() => setRows((r) => r.filter((_, i) => i !== idx))}>Remove</Button>
                   {idx === rows.length - 1 && (
