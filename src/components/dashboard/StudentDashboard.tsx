@@ -232,30 +232,6 @@ const StudentDashboard = () => {
 
         {/* Right column */}
         <div className="space-y-6">
-          {/* Highlighted course */}
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-2 text-xs">
-              <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700">Group course</span>
-              <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Advanced</span>
-            </div>
-            <h3 className="text-lg font-semibold">English punctuation made easy</h3>
-            <p className="text-sm text-gray-500 mt-1">Punctuation — learn the basics without the pain. People will never laugh at your punctuation again.</p>
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex -space-x-2">
-                {["A","B","C","D"].map((a,i)=> (
-                  <div key={i} className="h-7 w-7 rounded-full bg-gray-200 flex items-center justify-center text-xs border border-white">{a}</div>
-                ))}
-              </div>
-              <div className="flex-1 mx-4">
-                <div className="text-xs text-gray-500 mb-1">Course progress</div>
-                <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
-                  <div className="h-full bg-[#F59E0B]" style={{ width: '75%' }} />
-                </div>
-              </div>
-            </div>
-            <Button className="w-full mt-5 bg-black hover:bg-black/80 text-white">Continue learning</Button>
-          </div>
-
           <RecommendationsSection certificates={certificates} />
         </div>
       </div>
