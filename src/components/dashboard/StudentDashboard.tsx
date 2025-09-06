@@ -156,15 +156,15 @@ const StudentDashboard = () => {
               </div>
               <div className="mt-4 grid grid-cols-3 text-center text-sm text-gray-600">
                 <div>
-                  <div className="font-semibold">{approved}</div>
+                  <div className="font-semibold"><CountUp to={approved} /></div>
                   <div className="text-gray-500">Approved</div>
                 </div>
                 <div>
-                  <div className="font-semibold">{pending}</div>
+                  <div className="font-semibold"><CountUp to={pending} /></div>
                   <div className="text-gray-500">In progress</div>
                 </div>
                 <div>
-                  <div className="font-semibold">{rejected}</div>
+                  <div className="font-semibold"><CountUp to={rejected} /></div>
                   <div className="text-gray-500">Upcoming</div>
                 </div>
               </div>
