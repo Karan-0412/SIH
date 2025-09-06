@@ -133,7 +133,7 @@ const StudentDashboard = () => {
                 <h3 className="font-semibold text-gray-900">Progress statistics</h3>
                 <span className="text-sm text-gray-500">{pct(approved + pending)}% Total activity</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
+              <div className="flex w-full h-2 rounded-full overflow-hidden bg-gray-200">
                 <div className="h-full bg-[#6D28D9]" style={{ width: `${pct(approved)}%`, transition: 'width 700ms ease' }} />
                 <div className="h-full bg-[#10B981]" style={{ width: `${pct(pending)}%`, transition: 'width 700ms ease 100ms' }} />
                 <div className="h-full bg-[#F59E0B]" style={{ width: `${pct(rejected)}%`, transition: 'width 700ms ease 200ms' }} />
