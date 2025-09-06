@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Upload } from 'lucide-react';
 import ProfileSection from './student/ProfileSection';
 import CertificatesSection from './student/CertificatesSection';
 import RecommendationsSection from './student/RecommendationsSection';
@@ -24,6 +26,7 @@ const StudentDashboard = () => {
   const { profile } = useProfile();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showUploadPanel, setShowUploadPanel] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -33,7 +36,7 @@ const StudentDashboard = () => {
 
   const fetchCertificates = async () => {
     if (!profile) return;
-    
+
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -54,6 +57,11 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleUploadComplete = async () => {
+    await fetchCertificates();
+    setShowUploadPanel(false);
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto p-6">
@@ -72,17 +80,23 @@ const StudentDashboard = () => {
           <h1 className="text-3xl font-bold text-foreground">Student Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, {profile?.full_name}!</p>
         </div>
-        <NotificationsDropdown />
+        <div className="flex items-center gap-3">
+          <Button size="sm" onClick={() => setShowUploadPanel((v) => !v)}>
+            <Upload className="h-4 w-4 mr-2" />
+            {showUploadPanel ? 'Close Upload' : 'Upload Certificate'}
+          </Button>
+          <NotificationsDropdown />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Column - Profile & Upload */}
         <div className="space-y-6">
           <ProfileSection certificates={certificates} />
-          <UploadCertificateSection onUploadComplete={fetchCertificates} />
+          {showUploadPanel && (
+            <UploadCertificateSection onUploadComplete={handleUploadComplete} />
+          )}
         </div>
 
-        {/* Right Columns - Certificates & Recommendations */}
         <div className="xl:col-span-2 space-y-6">
           <CertificatesSection certificates={certificates} />
           <RecommendationsSection certificates={certificates} />
