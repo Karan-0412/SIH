@@ -227,11 +227,56 @@ const StudentDashboard = () => {
             </div>
           </div>
 
+          {/* My schedule */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">My schedule</h3>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <button className="px-3 py-1 rounded-full bg-gray-100">Today</button>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[{time:'10:30 — 12:00',title:'Technical English for Beginners',tag:'Beginner',accent:'bg-gray-100',mentor:'Kristin Watson'},{time:'13:00 — 14:00',title:'English punctuation made easy',tag:'Advanced',accent:'bg-[#7C3AED] text-white',mentor:'Cody Fisher',now:true},{time:'16:00 — 17:00',title:'Technical Spanish for Beginners',tag:'Beginner',accent:'bg-gray-100',mentor:'Jacob Jones'}].map((c,i)=> (
+                <div key={i} className={`rounded-2xl p-4 shadow-sm ${c.accent.includes('#7C3AED')? 'bg-[#7C3AED] text-white' : 'bg-white'} border`}>
+                  <div className={`text-xs ${c.accent.includes('#7C3AED')? 'text-white/80' : 'text-gray-500'}`}>{c.time}</div>
+                  <div className="mt-1 font-semibold leading-snug">{c.title}</div>
+                  <div className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-xs ${c.accent.includes('#7C3AED')? 'bg-white/20' : 'bg-gray-100 text-gray-700'}`}>{c.tag}</div>
+                  <div className="mt-4 text-xs opacity-80">Mentor — {c.mentor}</div>
+                  {c.now && <span className="absolute translate-x-2 -translate-y-2 text-xs bg-orange-500 text-white rounded-full px-2 py-0.5">Now</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+
           <CertificatesSection certificates={certificates} />
         </div>
 
         {/* Right column */}
         <div className="space-y-6">
+          {/* Highlighted course */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-2 text-xs">
+              <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700">Group course</span>
+              <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Advanced</span>
+            </div>
+            <h3 className="text-lg font-semibold">English punctuation made easy</h3>
+            <p className="text-sm text-gray-500 mt-1">Punctuation — learn the basics without the pain. People will never laugh at your punctuation again.</p>
+            <div className="mt-4 flex items-center justify-between">
+              <div className="flex -space-x-2">
+                {["A","B","C","D"].map((a,i)=> (
+                  <div key={i} className="h-7 w-7 rounded-full bg-gray-200 flex items-center justify-center text-xs border border-white">{a}</div>
+                ))}
+              </div>
+              <div className="flex-1 mx-4">
+                <div className="text-xs text-gray-500 mb-1">Course progress</div>
+                <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                  <div className="h-full bg-[#F59E0B]" style={{ width: '75%' }} />
+                </div>
+              </div>
+            </div>
+            <Button className="w-full mt-5 bg-black hover:bg-black/80 text-white">Continue learning</Button>
+          </div>
+
           <RecommendationsSection certificates={certificates} />
         </div>
       </div>
