@@ -8,6 +8,7 @@ import CertificatesSection from './student/CertificatesSection';
 import RecommendationsSection from './student/RecommendationsSection';
 import UploadCertificateSection from './student/UploadCertificateSection';
 import NotificationsDropdown from './student/NotificationsDropdown';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Certificate {
   id: string;
@@ -134,6 +135,54 @@ const StudentDashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-[320px_minmax(0,_1fr)_360px] gap-6">
         {/* Left rail */}
         <div className="space-y-6">
+          {/* Activity card with vertical bars */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900">Activity</h3>
+              <span className="text-xs px-3 py-1 rounded-full border bg-gray-50 text-gray-700">Last 7 days</span>
+            </div>
+            <div className="mt-5 h-40 flex items-end gap-3">
+              {last7.map((d) => {
+                const max = Math.max(...last7.map(x=>x.count)) || 1;
+                const h = (d.count / max) * 100;
+                const isMax = d.count === max && max > 0;
+                return (
+                  <div key={d.day} className="flex-1 flex flex-col items-center">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={`w-6 rounded-t transition-all duration-700 hover:shadow-md ${isMax ? 'bg-[#7C3AED]' : 'bg-[#E9D5FF] hover:bg-[#C4B5FD]'}`} style={{ height: `${h}%` }} />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="text-xs">
+                          <div className="font-medium">{d.day}</div>
+                          <div className="text-gray-600">{d.count} activities</div>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                    <span className="mt-2 text-xs text-gray-500">{d.day}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* By platform card (usage list) */}
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <h3 className="font-semibold text-gray-900 mb-4">By platform</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center gap-3">
+                <span className="inline-block h-2 w-2 rounded-full bg-[#7C3AED]" />
+                <span className="text-gray-700">Academic</span>
+                <span className="ml-auto text-gray-500">{certificates.filter(c=>c.category==='academic').length} h</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="inline-block h-2 w-2 rounded-full bg-[#10B981]" />
+                <span className="text-gray-700">Co-Curricular</span>
+                <span className="ml-auto text-gray-500">{certificates.filter(c=>c.category==='co_curricular').length} h</span>
+              </div>
+            </div>
+          </div>
+
           <ProfileSection certificates={certificates} />
           {showUploadPanel && (
             <UploadCertificateSection onUploadComplete={handleUploadComplete} />
@@ -183,32 +232,6 @@ const StudentDashboard = () => {
 
         {/* Right column */}
         <div className="space-y-6">
-          {/* Week statistics (Activity) */}
-          <div className="rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">Activity</h3>
-              <button className="text-xs px-3 py-1 rounded-full border bg-gray-50 text-gray-700">Last 7 days</button>
-            </div>
-            <div className="mt-4">
-              <div className="text-3xl font-bold text-gray-900 leading-none"><CountUp to={weekTotal} /> <span className="text-base font-medium text-gray-500">activities</span></div>
-            </div>
-            <div className="mt-4 space-y-3">
-              {last7.map((d) => {
-                const max = Math.max(...last7.map(x=>x.count)) || 1;
-                const w = (d.count / max) * 100;
-                return (
-                  <div key={d.day} className="flex items-center gap-3">
-                    <span className="w-10 text-xs text-gray-500">{d.day}</span>
-                    <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#6D28D9] rounded-full transition-all duration-700" style={{ width: `${w}%` }} />
-                    </div>
-                    <span className="w-6 text-xs text-gray-600 text-right">{d.count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
           <RecommendationsSection certificates={certificates} />
         </div>
       </div>
