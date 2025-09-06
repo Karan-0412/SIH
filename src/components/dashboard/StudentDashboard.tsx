@@ -145,27 +145,34 @@ const StudentDashboard = () => {
           {/* Progress statistics */}
           <div className="grid grid-cols-1 gap-6">
             <div className="rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Progress statistics</h3>
-                <span className="text-sm text-gray-500">{pct(approved + pending)}% Total activity</span>
-              </div>
-              <div className="flex w-full h-2 rounded-full overflow-hidden bg-gray-200">
-                <div className="h-full bg-[#6D28D9]" style={{ width: `${pct(approved)}%`, transition: 'width 700ms ease' }} />
-                <div className="h-full bg-[#10B981]" style={{ width: `${pct(pending)}%`, transition: 'width 700ms ease 100ms' }} />
-                <div className="h-full bg-[#F59E0B]" style={{ width: `${pct(rejected)}%`, transition: 'width 700ms ease 200ms' }} />
-              </div>
-              <div className="mt-4 grid grid-cols-3 text-center text-sm text-gray-600">
+              <div className="grid md:grid-cols-2 gap-6 items-center">
                 <div>
-                  <div className="font-semibold"><CountUp to={approved} /></div>
-                  <div className="text-gray-500">Approved</div>
+                  <div className="text-4xl font-bold text-gray-900 leading-tight"><CountUp to={pct(approved + pending)} />%</div>
+                  <div className="text-sm text-gray-500 mt-1">Total activity</div>
                 </div>
                 <div>
-                  <div className="font-semibold"><CountUp to={pending} /></div>
-                  <div className="text-gray-500">In progress</div>
-                </div>
-                <div>
-                  <div className="font-semibold"><CountUp to={rejected} /></div>
-                  <div className="text-gray-500">Upcoming</div>
+                  <div className="flex w-full h-2 rounded-full overflow-hidden bg-gray-200">
+                    <div className="h-full bg-[#6D28D9]" style={{ width: `${pct(approved)}%`, transition: 'width 800ms ease' }} />
+                    <div className="h-full bg-[#10B981]" style={{ width: `${pct(pending)}%`, transition: 'width 800ms ease 120ms' }} />
+                    <div className="h-full bg-[#F59E0B]" style={{ width: `${pct(rejected)}%`, transition: 'width 800ms ease 240ms' }} />
+                  </div>
+                  <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#6D28D9]" />
+                      <span className="text-gray-500">Completed</span>
+                      <span className="ml-auto font-semibold"><CountUp to={approved} /></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#10B981]" />
+                      <span className="text-gray-500">In progress</span>
+                      <span className="ml-auto font-semibold"><CountUp to={pending} /></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
+                      <span className="text-gray-500">Upcoming</span>
+                      <span className="ml-auto font-semibold"><CountUp to={rejected} /></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -176,19 +183,30 @@ const StudentDashboard = () => {
 
         {/* Right column */}
         <div className="space-y-6">
-          {/* Week statistics */}
+          {/* Week statistics (Activity) */}
           <div className="rounded-2xl bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">Week statistics</h3>
-              <span className="text-sm text-gray-500">Last 7 days</span>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-gray-900">Activity</h3>
+              <button className="text-xs px-3 py-1 rounded-full border bg-gray-50 text-gray-700">Last 7 days</button>
             </div>
-            <div className="flex items-end gap-2 h-28">
-              {last7.map((d, i) => (
-                <div key={d.day} className="flex-1 flex flex-col items-center">
-                  <div className="w-6 rounded-t bg-[#6D28D9] transition-all duration-700" style={{ height: `${(d.count/(Math.max(...last7.map(x=>x.count))||1))*100}%` }} />
-                  <span className="mt-2 text-xs text-gray-500">{d.day}</span>
-                </div>
-              ))}
+            <div className="mt-4">
+              <div className="text-3xl font-bold text-gray-900 leading-none"><CountUp to={weekTotal} /> <span className="text-base font-medium text-gray-500">activities</span></div>
+            </div>
+            <div className="relative mt-4 h-32">
+              <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ bottom: `${(last7.reduce((s,x)=>s+x.count,0)/(last7.length||1))/(Math.max(...last7.map(x=>x.count))||1)*100}%` }} />
+              <div className="absolute inset-0 flex items-end gap-3 px-1">
+                {last7.map((d) => {
+                  const max = Math.max(...last7.map(x=>x.count)) || 1;
+                  const h = (d.count / max) * 100;
+                  const isMax = d.count === max;
+                  return (
+                    <div key={d.day} className="flex-1 flex flex-col items-center">
+                      <div className={`${isMax ? 'bg-[#6D28D9]' : 'bg-[#E9D5FF]'} w-6 rounded-t transition-all duration-700`} style={{ height: `${h}%` }} />
+                      <span className="mt-2 text-xs text-gray-500">{d.day}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
