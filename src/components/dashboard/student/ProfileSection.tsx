@@ -177,7 +177,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ certificates }) => {
       <CardContent className="space-y-6">
         <div className="flex items-center space-x-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src="" alt={profile.full_name} />
+            <AvatarImage src={extras.avatarUrl} alt={profile.full_name} />
             <AvatarFallback className="text-lg">
               {profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
             </AvatarFallback>
